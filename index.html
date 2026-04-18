@@ -5290,7 +5290,9 @@ document.getElementById('teamSelectRight').addEventListener('change', function()
 
 function updatePanelVisibility() {
   var rightTeam = document.getElementById('teamSelectRight').value;
-  document.getElementById('panelRight').style.display = rightTeam ? '' : 'none';
+  var vis = rightTeam ? '' : 'none';
+  document.querySelector('#panelRight .turn-labels').style.display = vis;
+  document.getElementById('contentRight').style.display = vis;
 }
 
 document.getElementById('resetBtn').addEventListener('click', function() {
