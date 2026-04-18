@@ -400,12 +400,72 @@
     font-weight: 700;
     letter-spacing: 1px;
     -moz-appearance: textfield;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
-  .score-input::-webkit-outer-spin-button,
-  .score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
   .score-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 6px rgba(229,84,27,0.3); }
+
+  select.score-input { padding: 5px 2px; text-align-last: center; }
+  select.score-input option { background: #1a1a1a; color: var(--orange); }
+
+  .primary-radio {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: var(--orange);
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .score-item.has-radio .score-item-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: center;
+  }
+
+  .primary-value {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--orange);
+    text-align: center;
+    min-width: 20px;
+  }
+
+  .total-vp {
+    background: #333;
+    border: 2px solid #555;
+    border-radius: 3px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .total-vp-label {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .total-vp-values {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .total-vp-num {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    min-width: 30px;
+  }
 
   .empty-hint {
     color: #555;
@@ -471,6 +531,11 @@
     .score-item-label { font-size: 0.6rem; }
     .score-input { width: 40px; font-size: 1rem; padding: 4px 2px; }
     .score-inputs { gap: 4px; }
+    .primary-value { font-size: 1rem; }
+    .total-vp { padding: 6px 8px; }
+    .total-vp-label { font-size: 0.6rem; }
+    .total-vp-num { font-size: 1.1rem; }
+    .primary-radio { width: 12px; height: 12px; }
 
     header { padding: 6px 12px; gap: 10px; }
     header h1 { font-size: 1rem; letter-spacing: 2px; }
@@ -4937,7 +5002,8 @@ async function loadData() {
   renderScoring();
 }
 
-var SCORE_ROWS = ['Command Points', 'Crit Op', 'Tac Op', 'Kill Op', 'Primary Op'];
+var SCORE_ROWS = ['Command Points', 'Crit Op', 'Tac Op', 'Kill Op'];
+var PRIMARY_OPS = ['Crit Op', 'Tac Op', 'Kill Op'];
 
 function populateTeams() {
   ['teamSelectLeft', 'teamSelectRight'].forEach(function(id) {
@@ -4957,6 +5023,53 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+function makeSelect(max) {
+  var html = '<select class="score-input">';
+  for (var i = 0; i <= max; i++) {
+    html += '<option value="' + i + '">' + i + '</option>';
+  }
+  html += '</select>';
+  return html;
+}
+
+function updateTotals() {
+  var leftTotal = 0, rightTotal = 0;
+  var list = document.getElementById('scoringList');
+  list.querySelectorAll('.score-input').forEach(function(el) {
+    var val = parseInt(el.value) || 0;
+    if (el.closest('.total-vp')) return;
+    var side = el.dataset.side;
+    if (side === 'left') leftTotal += val;
+    else if (side === 'right') rightTotal += val;
+    else leftTotal += val;
+  });
+  // Add primary op values
+  list.querySelectorAll('.primary-value').forEach(function(el) {
+    var val = parseInt(el.textContent) || 0;
+    var side = el.dataset.side;
+    if (side === 'left') leftTotal += val;
+    else if (side === 'right') rightTotal += val;
+    else leftTotal += val;
+  });
+  var leftEl = document.getElementById('totalLeft');
+  var rightEl = document.getElementById('totalRight');
+  if (leftEl) leftEl.textContent = leftTotal;
+  if (rightEl) rightEl.textContent = rightTotal;
+}
+
+function updatePrimaryOp(side) {
+  var list = document.getElementById('scoringList');
+  var checked = list.querySelector('input.primary-radio[data-side="' + side + '"]:checked');
+  var display = list.querySelector('.primary-value[data-side="' + side + '"]');
+  if (!display) return;
+  if (!checked) { display.textContent = '0'; updateTotals(); return; }
+  var row = checked.dataset.row;
+  var sel = list.querySelector('select.score-input[data-side="' + side + '"][data-row="' + row + '"]');
+  var val = sel ? parseInt(sel.value) || 0 : 0;
+  display.textContent = Math.ceil(val / 2);
+  updateTotals();
+}
+
 function renderScoring() {
   var list = document.getElementById('scoringList');
   list.innerHTML = '';
@@ -4966,23 +5079,75 @@ function renderScoring() {
 
   SCORE_ROWS.forEach(function(label) {
     var item = document.createElement('div');
-    item.className = 'score-item';
-    item.innerHTML = '<div class="score-item-label">' + escapeHtml(label) + '</div>';
+    var hasPrimaryRadio = PRIMARY_OPS.indexOf(label) >= 0;
+    item.className = 'score-item' + (hasPrimaryRadio ? ' has-radio' : '');
+
+    var labelHtml = '<div class="score-item-label">';
+    if (hasPrimaryRadio && twoTeams) {
+      labelHtml += '<input type="radio" name="primaryLeft" class="primary-radio" data-side="left" data-row="' + label + '">';
+    }
+    labelHtml += escapeHtml(label);
+    if (hasPrimaryRadio && twoTeams) {
+      labelHtml += '<input type="radio" name="primaryRight" class="primary-radio" data-side="right" data-row="' + label + '">';
+    } else if (hasPrimaryRadio) {
+      labelHtml += '<input type="radio" name="primaryLeft" class="primary-radio" data-side="left" data-row="' + label + '">';
+    }
+    labelHtml += '</div>';
+    item.innerHTML = labelHtml;
 
     var inputs = document.createElement('div');
     inputs.className = 'score-inputs';
 
     if (twoTeams) {
-      inputs.innerHTML =
-        '<input type="number" class="score-input" min="0" max="8" value="0">' +
-        '<input type="number" class="score-input" min="0" max="8" value="0">';
+      inputs.innerHTML = makeSelect(6).replace('class="score-input"', 'class="score-input" data-side="left" data-row="' + label + '"') +
+        makeSelect(6).replace('class="score-input"', 'class="score-input" data-side="right" data-row="' + label + '"');
     } else {
-      inputs.innerHTML =
-        '<input type="number" class="score-input" min="0" max="8" value="0">';
+      inputs.innerHTML = makeSelect(6).replace('class="score-input"', 'class="score-input" data-side="left" data-row="' + label + '"');
     }
 
     item.appendChild(inputs);
     list.appendChild(item);
+  });
+
+  // Primary Op row (auto-calculated)
+  var primaryItem = document.createElement('div');
+  primaryItem.className = 'score-item';
+  primaryItem.innerHTML = '<div class="score-item-label">Primary Op</div>';
+  var primaryInputs = document.createElement('div');
+  primaryInputs.className = 'score-inputs';
+  if (twoTeams) {
+    primaryInputs.innerHTML = '<div class="primary-value" data-side="left">0</div><div class="primary-value" data-side="right">0</div>';
+  } else {
+    primaryInputs.innerHTML = '<div class="primary-value" data-side="left">0</div>';
+  }
+  primaryItem.appendChild(primaryInputs);
+  list.appendChild(primaryItem);
+
+  // Total VP row
+  var totalItem = document.createElement('div');
+  totalItem.className = 'total-vp';
+  var totalVals = '<div class="total-vp-label">Total VP</div><div class="total-vp-values">';
+  if (twoTeams) {
+    totalVals += '<div class="total-vp-num" id="totalLeft">0</div><div class="total-vp-num" id="totalRight">0</div>';
+  } else {
+    totalVals += '<div class="total-vp-num" id="totalLeft">0</div>';
+  }
+  totalVals += '</div>';
+  totalItem.innerHTML = totalVals;
+  list.appendChild(totalItem);
+
+  // Wire up events
+  list.querySelectorAll('.score-input').forEach(function(el) {
+    el.addEventListener('change', function() {
+      var side = el.dataset.side;
+      updatePrimaryOp(side);
+      updateTotals();
+    });
+  });
+  list.querySelectorAll('.primary-radio').forEach(function(el) {
+    el.addEventListener('change', function() {
+      updatePrimaryOp(el.dataset.side);
+    });
   });
 }
 
@@ -5125,6 +5290,9 @@ document.getElementById('resetBtn').addEventListener('click', function() {
   checkedRight = {};
   document.querySelectorAll('.turn-check.active').forEach(function(el) { el.classList.remove('active'); });
   document.querySelectorAll('.score-input').forEach(function(el) { el.value = '0'; });
+  document.querySelectorAll('.primary-radio').forEach(function(el) { el.checked = false; });
+  document.querySelectorAll('.primary-value').forEach(function(el) { el.textContent = '0'; });
+  document.querySelectorAll('.total-vp-num').forEach(function(el) { el.textContent = '0'; });
   document.querySelectorAll('.item.removed').forEach(function(el) { el.classList.remove('removed'); });
 });
 
