@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Team Planner</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --panel: #16213e;
+    --card: #0f3460;
+    --accent: #e94560;
+    --text: #eee;
+    --muted: #999;
+    --border: #2a2a4a;
+    --turn1: #1b4332;
+    --turn2: #1b3a4b;
+    --turn3: #3d2c4b;
+    --turn4: #4b2c2c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--panel);
+    border-bottom: 2px solid var(--accent);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  #teamSelect {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    min-width: 260px;
+    cursor: pointer;
+  }
+
+  #teamSelect:focus { outline: 2px solid var(--accent); }
+
+  .reset-btn {
+    margin-left: auto;
+    padding: 8px 16px;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+  }
+
+  .reset-btn:hover { background: var(--accent); color: #fff; }
+
+  /* ── Main layout ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Left panel ── */
+  .left-panel {
+    width: 360px;
+    min-width: 280px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .section-header {
+    background: var(--card);
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+
+  .section-header .chevron {
+    transition: transform 0.2s;
+    font-size: 0.7rem;
+  }
+
+  .section-header.collapsed .chevron { transform: rotate(-90deg); }
+
+  .section-body { overflow: hidden; }
+  .section-header.collapsed + .section-body { display: none; }
+
+  .item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+
+  .item:hover { background: rgba(233, 69, 96, 0.08); }
+
+  .item-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .item-type {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .item-detail {
+    display: none;
+    margin-top: 8px;
+    padding: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    color: #ccc;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .item.expanded .item-detail { display: block; }
+
+  /* Drag ghost */
+  .item[draggable="true"] { cursor: grab; }
+  .item.dragging { opacity: 0.4; }
+
+  /* ── Right panel (turns) ── */
+  .right-panel {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .turn-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .turn-col:last-child { border-right: none; }
+
+  .turn-header {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    flex-shrink: 0;
+    border-bottom: 2px solid;
+  }
+
+  .turn-col:nth-child(1) .turn-header { background: var(--turn1); border-color: #2d6a4f; }
+  .turn-col:nth-child(2) .turn-header { background: var(--turn2); border-color: #2a6f97; }
+  .turn-col:nth-child(3) .turn-header { background: var(--turn3); border-color: #6a4c93; }
+  .turn-col:nth-child(4) .turn-header { background: var(--turn4); border-color: #9b2c2c; }
+
+  .turn-body {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .turn-body.drag-over {
+    background: rgba(233, 69, 96, 0.1);
+    outline: 2px dashed var(--accent);
+    outline-offset: -4px;
+  }
+
+  .turn-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    position: relative;
+    animation: fadeIn 0.2s;
+  }
+
+  .turn-card .card-title {
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+  }
+
+  .turn-card .card-type {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .turn-card .remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px;
+  }
+
+  .turn-card .remove-btn:hover { color: var(--accent); }
+
+  .turn-card.strategy { border-left: 3px solid #2d6a4f; }
+  .turn-card.firefight { border-left: 3px solid #e76f51; }
+  .turn-card.equipment { border-left: 3px solid #2a6f97; }
+  .turn-card.faction-rule { border-left: 3px solid #6a4c93; }
+
+  .empty-hint {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-align: center;
+    padding: 20px 10px;
+    line-height: 1.5;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    .main { flex-direction: column; }
+    .left-panel { width: 100%; max-height: 40vh; border-right: none; border-bottom: 1px solid var(--border); }
+    .right-panel { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kill Team Planner</h1>
+  <select id="teamSelect"><option value="">— Select a Team —</option></select>
+  <button class="reset-btn" id="resetBtn">Clear Turns</button>
+</header>
+
+<div class="main">
+  <aside class="left-panel" id="leftPanel"></aside>
+  <div class="right-panel" id="rightPanel">
+    <div class="turn-col" data-turn="1">
+      <div class="turn-header">Turn 1</div>
+      <div class="turn-body" data-turn="1"><div class="empty-hint">Drag items here</div></div>
+    </div>
+    <div class="turn-col" data-turn="2">
+      <div class="turn-header">Turn 2</div>
+      <div class="turn-body" data-turn="2"><div class="empty-hint">Drag items here</div></div>
+    </div>
+    <div class="turn-col" data-turn="3">
+      <div class="turn-header">Turn 3</div>
+      <div class="turn-body" data-turn="3"><div class="empty-hint">Drag items here</div></div>
+    </div>
+    <div class="turn-col" data-turn="4">
+      <div class="turn-header">Turn 4</div>
+      <div class="turn-body" data-turn="4"><div class="empty-hint">Drag items here</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let DATA = null;
+
+async function loadData() {
+  const resp = await fetch('data.json');
+  DATA = await resp.json();
+  populateTeams();
+}
+
+function populateTeams() {
+  const sel = document.getElementById('teamSelect');
+  DATA.teams.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    sel.appendChild(opt);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderLeft(team) {
+  const panel = document.getElementById('leftPanel');
+  panel.innerHTML = '';
+
+  if (!team) {
+    panel.innerHTML = '<div class="empty-hint" style="padding:40px">Select a team to view rules, ploys and equipment.</div>';
+    return;
+  }
+
+  const sections = [
+    { key: 'faction_rules', label: 'Faction Rules', cls: 'faction-rule' },
+    { key: 'strategy_ploys', label: 'Strategy Ploys', cls: 'strategy' },
+    { key: 'firefight_ploys', label: 'Firefight Ploys', cls: 'firefight' },
+    { key: 'equipment', label: 'Equipment', cls: 'equipment' },
+  ];
+
+  sections.forEach(sec => {
+    const items = (DATA[sec.key] && DATA[sec.key][team]) || [];
+
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `<span class="chevron">▼</span> ${escapeHtml(sec.label)} <span style="margin-left:auto;font-size:0.7rem;color:var(--muted)">${items.length}</span>`;
+    header.addEventListener('click', () => header.classList.toggle('collapsed'));
+    panel.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'section-body';
+
+    if (items.length === 0) {
+      body.innerHTML = '<div class="empty-hint">No items</div>';
+    }
+
+    items.forEach((item, idx) => {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.draggable = true;
+      el.dataset.section = sec.key;
+      el.dataset.cls = sec.cls;
+      el.dataset.title = item.title;
+      el.dataset.idx = idx;
+
+      const detailText = item.texts.map(t => escapeHtml(t)).join('\n\n---\n\n');
+
+      el.innerHTML = `
+        <div class="item-title">${escapeHtml(item.title)}</div>
+        <div class="item-type">${escapeHtml(sec.label)}</div>
+        <div class="item-detail">${detailText || '<em>No text available</em>'}</div>
+      `;
+
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.item-detail')) return;
+        el.classList.toggle('expanded');
+      });
+
+      el.addEventListener('dragstart', (e) => {
+        el.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+          title: item.title,
+          cls: sec.cls,
+          label: sec.label,
+        }));
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+
+      body.appendChild(el);
+    });
+
+    panel.appendChild(body);
+  });
+}
+
+function addCardToTurn(turnBody, title, cls, label) {
+  // Remove empty hint
+  const hint = turnBody.querySelector('.empty-hint');
+  if (hint) hint.remove();
+
+  const card = document.createElement('div');
+  card.className = `turn-card ${cls}`;
+  card.innerHTML = `
+    <div class="card-title">${escapeHtml(title)}</div>
+    <div class="card-type">${escapeHtml(label)}</div>
+    <button class="remove-btn" title="Remove">&times;</button>
+  `;
+  card.querySelector('.remove-btn').addEventListener('click', () => {
+    card.remove();
+    if (turnBody.querySelectorAll('.turn-card').length === 0) {
+      turnBody.innerHTML = '<div class="empty-hint">Drag items here</div>';
+    }
+  });
+  turnBody.appendChild(card);
+}
+
+function setupDropZones() {
+  document.querySelectorAll('.turn-body').forEach(zone => {
+    zone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      try {
+        const d = JSON.parse(e.dataTransfer.getData('text/plain'));
+        addCardToTurn(zone, d.title, d.cls, d.label);
+      } catch (_) {}
+    });
+  });
+}
+
+document.getElementById('teamSelect').addEventListener('change', (e) => {
+  renderLeft(e.target.value);
+  clearTurns();
+});
+
+document.getElementById('resetBtn').addEventListener('click', clearTurns);
+
+function clearTurns() {
+  document.querySelectorAll('.turn-body').forEach(zone => {
+    zone.innerHTML = '<div class="empty-hint">Drag items here</div>';
+  });
+}
+
+setupDropZones();
+renderLeft('');
+loadData();
+</script>
+</body>
+</html>
