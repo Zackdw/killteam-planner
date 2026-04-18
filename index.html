@@ -33,48 +33,32 @@
   header {
     background: #111;
     border-bottom: 3px solid var(--orange);
-    padding: 10px 20px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 16px;
     flex-shrink: 0;
   }
 
   header h1 {
     font-family: 'Oswald', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 3px;
     color: var(--orange);
   }
 
-  #teamSelect {
-    padding: 7px 12px;
-    border-radius: 3px;
-    border: 2px solid #444;
-    background: #2a2a2a;
-    color: var(--text-light);
-    font-family: 'Oswald', sans-serif;
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    min-width: 250px;
-    cursor: pointer;
-  }
-
-  #teamSelect:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
-
   .reset-btn {
-    margin-left: auto;
-    padding: 7px 14px;
+    padding: 5px 12px;
     border: 2px solid var(--orange);
     background: transparent;
     color: var(--orange);
     font-family: 'Oswald', sans-serif;
     border-radius: 3px;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: 600;
@@ -89,31 +73,65 @@
     overflow: hidden;
   }
 
-  .left-panel {
+  /* --- Team Panels (left & right) --- */
+  .team-panel {
     flex: 1;
     background: var(--panel);
-    border-right: 2px solid #333;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
+
+  .team-panel.left { border-right: 2px solid #333; }
+  .team-panel.right { border-left: 2px solid #333; }
+
+  .team-header {
+    background: #111;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border-bottom: 2px solid #444;
+    position: sticky;
+    top: 0;
+    z-index: 4;
+  }
+
+  .team-select {
+    flex: 1;
+    padding: 5px 8px;
+    border-radius: 3px;
+    border: 2px solid #444;
+    background: #2a2a2a;
+    color: var(--text-light);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    min-width: 0;
+  }
+
+  .team-select:focus { outline: 2px solid var(--orange); border-color: var(--orange); }
 
   .turn-labels {
     display: flex;
     align-items: center;
-    background: #111;
-    border-bottom: 2px solid #444;
+    background: #181818;
+    border-bottom: 1px solid #333;
     flex-shrink: 0;
     position: sticky;
-    top: 0;
+    top: 38px;
     z-index: 3;
   }
 
   .turn-labels .spacer {
     flex: 1;
-    padding: 6px 12px;
+    padding: 4px 10px;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -121,13 +139,13 @@
   }
 
   .turn-labels .turn-label {
-    width: 38px;
+    width: 32px;
     text-align: center;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
-    padding: 6px 0;
+    padding: 4px 0;
     border-left: 1px solid #333;
     letter-spacing: 0.5px;
   }
@@ -137,13 +155,20 @@
   .turn-labels .turn-label:nth-child(4) { color: #c084fc; }
   .turn-labels .turn-label:nth-child(5) { color: #fb923c; }
 
-  #leftContent { flex: 1; overflow-y: auto; }
+  /* Mirrored: right panel has checkboxes on left side */
+  .team-panel.right .turn-labels { flex-direction: row-reverse; }
+  .team-panel.right .turn-labels .turn-label { border-left: none; border-right: 1px solid #333; }
+  .team-panel.right .item { flex-direction: row-reverse; }
+  .team-panel.right .item-turns { flex-direction: row-reverse; }
+  .team-panel.right .turn-check { border-left: none; border-right: 1px solid #333; }
+
+  .team-content { flex: 1; overflow-y: auto; }
 
   .section-header {
     background: #111;
-    padding: 8px 14px;
+    padding: 6px 12px;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -156,13 +181,13 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     user-select: none;
   }
 
   .section-header .chevron {
     transition: transform 0.2s;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .section-header.collapsed .chevron { transform: rotate(-90deg); }
@@ -178,26 +203,32 @@
   }
 
   .item:hover { background: #2a2a2a; }
+  .item.removed { display: none; }
 
   .item-info {
     flex: 1;
-    padding: 8px 12px;
+    padding: 6px 10px;
     cursor: pointer;
     min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
+
+  .item-info-text { flex: 1; min-width: 0; }
 
   .item-title {
     font-family: 'Oswald', sans-serif;
-    font-size: 0.82rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text-light);
-    margin-bottom: 1px;
+    margin-bottom: 0;
   }
 
   .item-type {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -207,20 +238,34 @@
   .item-detail {
     display: none;
     margin-top: 6px;
-    padding: 8px;
+    padding: 6px;
     background: var(--card-bg);
     border-radius: 3px;
     border-left: 3px solid var(--orange);
-    font-size: 0.75rem;
-    line-height: 1.45;
+    font-size: 0.7rem;
+    line-height: 1.4;
     white-space: pre-wrap;
     color: var(--text-dark);
-    max-height: 250px;
+    max-height: 200px;
     overflow-y: auto;
     font-family: 'Roboto Condensed', sans-serif;
   }
 
   .item.expanded .item-detail { display: block; }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.15s;
+    flex-shrink: 0;
+  }
+
+  .remove-btn:hover { color: #ef4444; }
 
   .item-turns {
     display: flex;
@@ -230,7 +275,9 @@
   }
 
   .turn-check {
-    width: 38px;
+    width: 32px;
+    height: 100%;
+    min-height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,8 +290,8 @@
 
   .turn-check::after {
     content: '';
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border: 2px solid #555;
     border-radius: 2px;
     display: block;
@@ -257,7 +304,7 @@
     content: '\2713';
     position: absolute;
     color: #fff;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 700;
     z-index: 1;
     pointer-events: none;
@@ -279,21 +326,23 @@
   .turn-check[data-turn="4"].active::after { background: #fb923c; border-color: #fb923c; box-shadow: 0 0 6px rgba(251,146,60,0.3); }
   .turn-check[data-turn="4"]:hover::after { border-color: #fb923c; }
 
-  .right-panel {
-    width: 260px;
-    min-width: 220px;
+  /* --- Center Scoring Panel --- */
+  .scoring-panel {
+    width: 200px;
+    min-width: 180px;
     flex-shrink: 0;
-    background: var(--panel);
+    background: #1a1a1a;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
   }
 
   .scoring-header {
     background: #111;
-    padding: 10px 14px;
+    padding: 8px 10px;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -304,43 +353,50 @@
   }
 
   .scoring-list {
-    padding: 12px;
+    padding: 10px 8px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
   }
 
   .score-item {
-    background: #2a2a2a;
+    background: #262626;
     border: 1px solid #444;
     border-radius: 3px;
-    padding: 10px 14px;
+    padding: 8px 10px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .score-item-label {
     font-family: 'Oswald', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     color: var(--text-light);
-    flex: 1;
+    text-align: center;
+  }
+
+  .score-inputs {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
   }
 
   .score-input {
     width: 50px;
-    padding: 6px 4px;
+    padding: 5px 3px;
     text-align: center;
     border: 2px solid #555;
     border-radius: 3px;
     background: #1a1a1a;
     color: var(--orange);
     font-family: 'Oswald', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: 1px;
     -moz-appearance: textfield;
@@ -351,12 +407,17 @@
 
   .score-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 6px rgba(229,84,27,0.3); }
 
+  .score-input.team-left { color: #4ade80; border-color: #3a6b3a; }
+  .score-input.team-left:focus { border-color: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.3); }
+  .score-input.team-right { color: #60a5fa; border-color: #3a5a7a; }
+  .score-input.team-right:focus { border-color: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,0.3); }
+
   .empty-hint {
     color: #555;
     font-family: 'Oswald', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     text-align: center;
-    padding: 20px 8px;
+    padding: 16px 6px;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -370,8 +431,11 @@
 
   @media (max-width: 900px) {
     .main { flex-direction: column; }
-    .left-panel { max-height: 60vh; border-right: none; border-bottom: 2px solid #333; }
-    .right-panel { width: 100%; min-width: unset; }
+    .team-panel { max-height: 40vh; }
+    .team-panel.left { border-right: none; border-bottom: 2px solid #333; }
+    .team-panel.right { border-left: none; border-top: 2px solid #333; }
+    .scoring-panel { width: 100%; min-width: unset; flex-direction: row; border: none; border-top: 2px solid #333; border-bottom: 2px solid #333; }
+    .scoring-list { flex-direction: row; flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -379,12 +443,15 @@
 
 <header>
   <h1>Kill Team Planner</h1>
-  <select id="teamSelect"><option value="">— SELECT TEAM —</option></select>
   <button class="reset-btn" id="resetBtn">Clear All</button>
 </header>
 
 <div class="main">
-  <aside class="left-panel">
+  <!-- LEFT TEAM -->
+  <div class="team-panel left" id="panelLeft">
+    <div class="team-header">
+      <select class="team-select" id="teamSelectLeft"><option value="">— SELECT TEAM —</option></select>
+    </div>
     <div class="turn-labels">
       <div class="spacer">Item</div>
       <div class="turn-label">T1</div>
@@ -392,23 +459,35 @@
       <div class="turn-label">T3</div>
       <div class="turn-label">T4</div>
     </div>
-    <div id="leftContent"></div>
-  </aside>
-  <div class="right-panel">
+    <div class="team-content" id="contentLeft"></div>
+  </div>
+
+  <!-- CENTER SCORING -->
+  <div class="scoring-panel" id="scoringPanel">
     <div class="scoring-header">Scoring</div>
-    <div class="scoring-list">
-      <div class="score-item"><span class="score-item-label">Command Points</span><input type="number" class="score-input" min="0" max="8" value="0"></div>
-      <div class="score-item"><span class="score-item-label">Crit Op</span><input type="number" class="score-input" min="0" max="8" value="0"></div>
-      <div class="score-item"><span class="score-item-label">Tac Op</span><input type="number" class="score-input" min="0" max="8" value="0"></div>
-      <div class="score-item"><span class="score-item-label">Kill Op</span><input type="number" class="score-input" min="0" max="8" value="0"></div>
-      <div class="score-item"><span class="score-item-label">Primary Op</span><input type="number" class="score-input" min="0" max="8" value="0"></div>
+    <div class="scoring-list" id="scoringList"></div>
+  </div>
+
+  <!-- RIGHT TEAM (mirrored) -->
+  <div class="team-panel right" id="panelRight">
+    <div class="team-header">
+      <select class="team-select" id="teamSelectRight"><option value="">— SELECT TEAM —</option></select>
     </div>
+    <div class="turn-labels">
+      <div class="spacer">Item</div>
+      <div class="turn-label">T1</div>
+      <div class="turn-label">T2</div>
+      <div class="turn-label">T3</div>
+      <div class="turn-label">T4</div>
+    </div>
+    <div class="team-content" id="contentRight"></div>
   </div>
 </div>
 
 <script>
 let DATA = null;
-let checked = {};
+let checkedLeft = {};
+let checkedRight = {};
 
 async function loadData() {
   DATA = {
@@ -4771,49 +4850,85 @@ async function loadData() {
   }
 };
   populateTeams();
+  renderScoring();
 }
 
+var SCORE_ROWS = ['Command Points', 'Crit Op', 'Tac Op', 'Kill Op', 'Primary Op'];
+
 function populateTeams() {
-  const sel = document.getElementById('teamSelect');
-  DATA.teams.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t;
-    opt.textContent = t;
-    sel.appendChild(opt);
+  ['teamSelectLeft', 'teamSelectRight'].forEach(function(id) {
+    var sel = document.getElementById(id);
+    DATA.teams.forEach(function(t) {
+      var opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      sel.appendChild(opt);
+    });
   });
 }
 
 function escapeHtml(str) {
-  const div = document.createElement('div');
+  var div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
-function checkKey(secKey, idx, turn) {
-  return secKey + '|' + idx + '|' + turn;
+function renderScoring() {
+  var list = document.getElementById('scoringList');
+  list.innerHTML = '';
+  var leftTeam = document.getElementById('teamSelectLeft').value;
+  var rightTeam = document.getElementById('teamSelectRight').value;
+  var twoTeams = leftTeam && rightTeam;
+
+  SCORE_ROWS.forEach(function(label) {
+    var item = document.createElement('div');
+    item.className = 'score-item';
+    item.innerHTML = '<div class="score-item-label">' + escapeHtml(label) + '</div>';
+
+    var inputs = document.createElement('div');
+    inputs.className = 'score-inputs';
+
+    if (twoTeams) {
+      inputs.innerHTML =
+        '<input type="number" class="score-input team-left" min="0" max="8" value="0">' +
+        '<input type="number" class="score-input team-right" min="0" max="8" value="0">';
+    } else {
+      inputs.innerHTML =
+        '<input type="number" class="score-input" min="0" max="8" value="0">';
+    }
+
+    item.appendChild(inputs);
+    list.appendChild(item);
+  });
 }
 
-function renderLeft(team) {
-  const panel = document.getElementById('leftContent');
+var universalEquip = [
+  { title: 'KRAK AND FRAG GRENADES', texts: [] },
+  { title: 'SMOKE AND STUN GRENADES', texts: [] },
+];
+
+function renderPanel(side) {
+  var selId = side === 'left' ? 'teamSelectLeft' : 'teamSelectRight';
+  var contentId = side === 'left' ? 'contentLeft' : 'contentRight';
+  var checkedObj = side === 'left' ? checkedLeft : checkedRight;
+  var team = document.getElementById(selId).value;
+  var panel = document.getElementById(contentId);
   panel.innerHTML = '';
-  checked = {};
+
+  // Clear checked state for this side
+  if (side === 'left') { checkedLeft = {}; } else { checkedRight = {}; }
+  checkedObj = side === 'left' ? checkedLeft : checkedRight;
 
   if (!team) {
-    panel.innerHTML = '<div class="empty-hint" style="padding:40px">Select a team to begin planning</div>';
-    updateSummary();
+    panel.innerHTML = '<div class="empty-hint" style="padding:30px">Select a team</div>';
     return;
   }
 
-  var universalEquip = [
-    { title: 'KRAK AND FRAG GRENADES', texts: [] },
-    { title: 'SMOKE AND STUN GRENADES', texts: [] },
-  ];
-
-  const sections = [
-    { key: 'faction_rules', label: 'Faction Rules', cls: 'faction-rule' },
-    { key: 'strategy_ploys', label: 'Strategy Ploys', cls: 'strategy' },
-    { key: 'firefight_ploys', label: 'Firefight Ploys', cls: 'firefight' },
-    { key: 'equipment', label: 'Equipment', cls: 'equipment' },
+  var sections = [
+    { key: 'faction_rules', label: 'Faction Rules', cls: 'faction-rule', startCollapsed: true },
+    { key: 'strategy_ploys', label: 'Strategy Ploys', cls: 'strategy', startCollapsed: false },
+    { key: 'firefight_ploys', label: 'Firefight Ploys', cls: 'firefight', startCollapsed: false },
+    { key: 'equipment', label: 'Equipment', cls: 'equipment', startCollapsed: false },
   ];
 
   sections.forEach(function(sec) {
@@ -4823,8 +4938,9 @@ function renderLeft(team) {
     }
 
     var header = document.createElement('div');
-    header.className = 'section-header';
-    header.innerHTML = '<span class="chevron">\u25BC</span> ' + escapeHtml(sec.label) + ' <span style="margin-left:auto;font-size:0.65rem;color:var(--muted)">' + items.length + '</span>';
+    header.className = 'section-header' + (sec.startCollapsed ? ' collapsed' : '');
+    header.innerHTML = '<span class="chevron">\u25BC</span> ' + escapeHtml(sec.label) +
+      ' <span style="margin-left:auto;font-size:0.6rem;color:var(--muted)">' + items.length + '</span>';
     header.addEventListener('click', function() { header.classList.toggle('collapsed'); });
     panel.appendChild(header);
 
@@ -4832,7 +4948,7 @@ function renderLeft(team) {
     body.className = 'section-body';
 
     if (items.length === 0) {
-      body.innerHTML = '<div class="empty-hint" style="padding:12px">No items</div>';
+      body.innerHTML = '<div class="empty-hint" style="padding:10px">No items</div>';
     }
 
     items.forEach(function(item, idx) {
@@ -4843,10 +4959,36 @@ function renderLeft(team) {
 
       var info = document.createElement('div');
       info.className = 'item-info';
-      info.innerHTML = '<div class="item-title">' + escapeHtml(item.title) + '</div>' +
+
+      var infoHtml = '<div class="item-info-text">' +
+        '<div class="item-title">' + escapeHtml(item.title) + '</div>' +
         '<div class="item-type">' + escapeHtml(sec.label) + '</div>' +
+        '</div>';
+
+      // Equipment items get a remove button
+      if (sec.key === 'equipment') {
+        infoHtml += '<button class="remove-btn" title="Remove">\u2715</button>';
+      }
+
+      info.innerHTML = infoHtml +
         '<div class="item-detail">' + (detailText || '<em>No text available</em>') + '</div>';
-      info.addEventListener('click', function() { row.classList.toggle('expanded'); });
+
+      info.querySelector('.item-info-text').addEventListener('click', function() { row.classList.toggle('expanded'); });
+
+      // Wire up remove button for equipment
+      var removeBtn = info.querySelector('.remove-btn');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          row.classList.add('removed');
+          // Clear any checked states for this item
+          for (var t = 1; t <= 4; t++) {
+            var key = side + '|' + sec.key + '|' + idx + '|' + t;
+            delete checkedObj[key];
+          }
+        });
+      }
+
       row.appendChild(info);
 
       var turns = document.createElement('div');
@@ -4860,15 +5002,14 @@ function renderLeft(team) {
           chk.title = 'Turn ' + turn;
           chk.addEventListener('click', function(e) {
             e.stopPropagation();
-            var key = checkKey(sec.key, idx, turn);
-            if (checked[key]) {
-              delete checked[key];
+            var key = side + '|' + sec.key + '|' + idx + '|' + turn;
+            if (checkedObj[key]) {
+              delete checkedObj[key];
               chk.classList.remove('active');
             } else {
-              checked[key] = { title: item.title, cls: sec.cls, label: sec.label };
+              checkedObj[key] = { title: item.title, cls: sec.cls, label: sec.label };
               chk.classList.add('active');
             }
-            updateSummary();
           });
           turns.appendChild(chk);
         })(t);
@@ -4880,24 +5021,28 @@ function renderLeft(team) {
 
     panel.appendChild(body);
   });
-
-  updateSummary();
 }
 
-function updateSummary() {}
+document.getElementById('teamSelectLeft').addEventListener('change', function() {
+  renderPanel('left');
+  renderScoring();
+});
 
-document.getElementById('teamSelect').addEventListener('change', function(e) {
-  renderLeft(e.target.value);
+document.getElementById('teamSelectRight').addEventListener('change', function() {
+  renderPanel('right');
+  renderScoring();
 });
 
 document.getElementById('resetBtn').addEventListener('click', function() {
-  checked = {};
+  checkedLeft = {};
+  checkedRight = {};
   document.querySelectorAll('.turn-check.active').forEach(function(el) { el.classList.remove('active'); });
   document.querySelectorAll('.score-input').forEach(function(el) { el.value = '0'; });
+  document.querySelectorAll('.item.removed').forEach(function(el) { el.classList.remove('removed'); });
 });
 
-renderLeft('');
-loadData();
+renderPanel('left');
+renderPanel('right');
 </script>
 </body>
 </html>
