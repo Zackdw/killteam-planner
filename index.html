@@ -5038,6 +5038,7 @@ function updateTotals() {
   list.querySelectorAll('.score-input').forEach(function(el) {
     var val = parseInt(el.value) || 0;
     if (el.closest('.total-vp')) return;
+    if (el.dataset.row === 'Command Points') return;
     var side = el.dataset.side;
     if (side === 'left') leftTotal += val;
     else if (side === 'right') rightTotal += val;
@@ -5244,14 +5245,15 @@ function renderPanel(side) {
       turns.className = 'item-turns';
 
       var isOnceAGame = sec.key === 'equipment' && item.onceAGame;
-      var turnList = isOnceAGame ? [1] : [1, 2, 3, 4];
+      var isTwiceAGame = sec.key === 'equipment' && item.title === 'SAINTLY RELICS';
+      var turnList = isOnceAGame ? [1] : isTwiceAGame ? [1, 2] : [1, 2, 3, 4];
 
       turnList.forEach(function(turn) {
         (function(turn) {
           var chk = document.createElement('div');
           chk.className = 'turn-check';
           chk.dataset.turn = turn;
-          chk.title = isOnceAGame ? 'Once a game' : 'Turn ' + turn;
+          chk.title = isOnceAGame ? 'Once a game' : isTwiceAGame ? 'Use ' + turn : 'Turn ' + turn;
           chk.addEventListener('click', function(e) {
             e.stopPropagation();
             var key = side + '|' + sec.key + '|' + idx + '|' + turn;
@@ -5283,7 +5285,13 @@ document.getElementById('teamSelectLeft').addEventListener('change', function() 
 document.getElementById('teamSelectRight').addEventListener('change', function() {
   renderPanel('right');
   renderScoring();
+  updatePanelVisibility();
 });
+
+function updatePanelVisibility() {
+  var rightTeam = document.getElementById('teamSelectRight').value;
+  document.getElementById('panelRight').style.display = rightTeam ? '' : 'none';
+}
 
 document.getElementById('resetBtn').addEventListener('click', function() {
   checkedLeft = {};
@@ -5298,6 +5306,7 @@ document.getElementById('resetBtn').addEventListener('click', function() {
 
 renderPanel('left');
 renderPanel('right');
+updatePanelVisibility();
 loadData();
 </script>
 </body>
