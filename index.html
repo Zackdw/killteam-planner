@@ -407,11 +407,6 @@
 
   .score-input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 6px rgba(229,84,27,0.3); }
 
-  .score-input.team-left { color: #4ade80; border-color: #3a6b3a; }
-  .score-input.team-left:focus { border-color: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.3); }
-  .score-input.team-right { color: #60a5fa; border-color: #3a5a7a; }
-  .score-input.team-right:focus { border-color: #60a5fa; box-shadow: 0 0 6px rgba(96,165,250,0.3); }
-
   .empty-hint {
     color: #555;
     font-family: 'Oswald', sans-serif;
@@ -4890,8 +4885,8 @@ function renderScoring() {
 
     if (twoTeams) {
       inputs.innerHTML =
-        '<input type="number" class="score-input team-left" min="0" max="8" value="0">' +
-        '<input type="number" class="score-input team-right" min="0" max="8" value="0">';
+        '<input type="number" class="score-input" min="0" max="8" value="0">' +
+        '<input type="number" class="score-input" min="0" max="8" value="0">';
     } else {
       inputs.innerHTML =
         '<input type="number" class="score-input" min="0" max="8" value="0">';
@@ -4994,12 +4989,15 @@ function renderPanel(side) {
       var turns = document.createElement('div');
       turns.className = 'item-turns';
 
-      for (var t = 1; t <= 4; t++) {
+      var isOnceAGame = sec.key === 'equipment' && item.onceAGame;
+      var turnList = isOnceAGame ? [1] : [1, 2, 3, 4];
+
+      turnList.forEach(function(turn) {
         (function(turn) {
           var chk = document.createElement('div');
           chk.className = 'turn-check';
           chk.dataset.turn = turn;
-          chk.title = 'Turn ' + turn;
+          chk.title = isOnceAGame ? 'Once a game' : 'Turn ' + turn;
           chk.addEventListener('click', function(e) {
             e.stopPropagation();
             var key = side + '|' + sec.key + '|' + idx + '|' + turn;
@@ -5012,8 +5010,8 @@ function renderPanel(side) {
             }
           });
           turns.appendChild(chk);
-        })(t);
-      }
+        })(turn);
+      });
 
       row.appendChild(turns);
       body.appendChild(row);
