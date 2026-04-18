@@ -5290,9 +5290,19 @@ document.getElementById('teamSelectRight').addEventListener('change', function()
 
 function updatePanelVisibility() {
   var rightTeam = document.getElementById('teamSelectRight').value;
+  var panel = document.getElementById('panelRight');
   var vis = rightTeam ? '' : 'none';
   document.querySelector('#panelRight .turn-labels').style.display = vis;
   document.getElementById('contentRight').style.display = vis;
+  if (rightTeam) {
+    panel.style.flex = '1';
+    panel.style.width = '';
+    panel.style.minWidth = '0';
+  } else {
+    panel.style.flex = 'none';
+    panel.style.width = 'auto';
+    panel.style.minWidth = 'auto';
+  }
 }
 
 document.getElementById('resetBtn').addEventListener('click', function() {
