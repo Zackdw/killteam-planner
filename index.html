@@ -424,13 +424,77 @@
   ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #666; }
 
+  /* --- Mobile: stacked tabs --- */
   @media (max-width: 900px) {
-    .main { flex-direction: column; }
-    .team-panel { max-height: 40vh; }
-    .team-panel.left { border-right: none; border-bottom: 2px solid #333; }
-    .team-panel.right { border-left: none; border-top: 2px solid #333; }
-    .scoring-panel { width: 100%; min-width: unset; flex-direction: row; border: none; border-top: 2px solid #333; border-bottom: 2px solid #333; }
-    .scoring-list { flex-direction: row; flex-wrap: wrap; }
+    .main { flex-direction: column; overflow-y: auto; }
+
+    .team-panel {
+      flex: none;
+      min-height: 0;
+      max-height: none;
+      overflow-y: visible;
+      border: none !important;
+    }
+
+    .team-panel.right .turn-labels { flex-direction: row; }
+    .team-panel.right .turn-labels .turn-label { border-left: 1px solid #333; border-right: none; }
+    .team-panel.right .item { flex-direction: row; }
+    .team-panel.right .item-turns { flex-direction: row; }
+    .team-panel.right .turn-check { border-left: 1px solid #333; border-right: none; }
+
+    .team-content { overflow-y: visible; }
+
+    .scoring-panel {
+      width: 100%;
+      min-width: unset;
+      flex-shrink: 0;
+      border: none;
+      border-top: 2px solid var(--orange);
+      border-bottom: 2px solid var(--orange);
+    }
+
+    .scoring-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 8px;
+      gap: 6px;
+    }
+
+    .score-item {
+      flex: 1 1 auto;
+      min-width: 80px;
+      max-width: 120px;
+      padding: 6px 8px;
+    }
+
+    .score-item-label { font-size: 0.6rem; }
+    .score-input { width: 40px; font-size: 1rem; padding: 4px 2px; }
+    .score-inputs { gap: 4px; }
+
+    header { padding: 6px 12px; gap: 10px; }
+    header h1 { font-size: 1rem; letter-spacing: 2px; }
+
+    .team-header { position: sticky; top: 0; z-index: 5; }
+    .turn-labels { position: sticky; z-index: 4; top: 34px; }
+    .section-header { position: relative; }
+
+    .turn-check { width: 28px; min-height: 30px; }
+    .turn-check::after { width: 12px; height: 12px; }
+    .turn-check.active::before { font-size: 0.55rem; }
+    .turn-labels .turn-label { width: 28px; font-size: 0.55rem; }
+    .item-title { font-size: 0.7rem; }
+    .item-type { font-size: 0.55rem; }
+    .item-info { padding: 5px 8px; }
+    .item-detail { font-size: 0.65rem; max-height: 180px; }
+  }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 0.85rem; letter-spacing: 1px; }
+    .team-select { font-size: 0.7rem; padding: 4px 6px; }
+    .score-item { min-width: 60px; padding: 4px 6px; }
+    .score-item-label { font-size: 0.55rem; letter-spacing: 1px; }
+    .score-input { width: 36px; font-size: 0.9rem; }
   }
 </style>
 </head>
@@ -3703,13 +3767,15 @@ async function loadData() {
         "title": "RUNE OF PROPHECY",
         "texts": [
           "BLADES OF KHAINE\nFACTION EQUIPMENT\nRUNE OF PROPHECY\nAffixed to an Aspect Warrior’s armour by a powerful\nseer, this warp-charged rune provides the bearer with a\nsliver of its creator’s prophetic vision.\nOnce per battle, after rolling off to decide\ninitiative, you can add D3 to, or subtract D3 from,\nyour result."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "RUNE OF SHIELDING",
         "texts": [
           "BLADES OF KHAINE\nFACTION EQUIPMENT\nRUNE OF SHIELDING\nShimmering with empyric energy, this rune flares\nbrightly when it suffers impact from an enemy weapon,\nturning aside bullet, bolt or blade.\nOnce per battle, when an attack dice inflicts\nNormal Dmg on a friendly BLADES OF KHAINE\noperative, you can ignore that inflicted damage."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "RUNE OF FORESIGHT",
@@ -3781,7 +3847,8 @@ async function loadData() {
         "title": "MATRIX MANIPULATOR",
         "texts": [
           "CANOPTEK CIRCLE\nFACTION EQUIPMENT\nMATRIX MANIPULATOR\nWith a flick of their digits, a skilled Geomancer can use\nthis enhanced geomantic manipulator as a surrogate\nobelisk node to extend the matrix.\nOnce per battle, during a friendly CANOPTEK\nCIRCLE  operative’s activation or counteraction,\nyou can use this rule. If you do, until the end\nof that activation/counteraction, a friendly\nCANOPTEK CIRCLE  GEOMANCER operative is\ntreated as your fourth OBELISK NODE marker."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "AWAKENED OBELISK NODES",
@@ -3813,7 +3880,8 @@ async function loadData() {
         "title": "VOCIFERA MORTIS",
         "texts": [
           "CELESTIAN INSIDIANT\nFACTION EQUIPMENT\nVOCIFERA MORTIS\nUpon the death of its bearer, this device transmits\na sombre requiem across the squad’s vox-channel,\nbroadcasting the sister’s martyrdom.\nOnce per battle, when an INSPIRING\nfriendly CELESTIAN INSIDIANT  operative is\nincapacitated, you can use this rule. If you do,\nfor the Martyrdom faction rule, the other friendly\nCELESTIAN INSIDIANT  operative you select\ncan be one that isn’t visible to or within 6\" of\nthat operative."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "SAINTLY RELICS",
@@ -3833,7 +3901,8 @@ async function loadData() {
         "title": "BALEFUL SCRIPT",
         "texts": [
           "CHAOS CULT\nFACTION EQUIPMENT\nBALEFUL SCRIPT\nThese infernal scrawlings, inscribed upon pages\nwrought from Human flesh, may bestow malefic gifts\nupon the reader when recited in the dark tongue.\nOnce per battle STRATEGIC GAMBIT. Change\none of your ACCURSED GIFTS. Note that if it's\nan ACCURSED GIFT an operative has from the\nAbhorrent Mutation firefight ploy, only that\noperative benefits from this."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "COVERT GUISES",
@@ -3851,7 +3920,8 @@ async function loadData() {
         "title": "VILE BLESSING",
         "texts": [
           "CHAOS CULT\nFACTION EQUIPMENT\nVILE BLESSING\nThough hideous, disturbing and often painful, the Dark\nGods’ gifts of mutation bestow upon their recipients\nincredible resilience.\nOnce per battle, when an attack dice inflicts\nNormal Dmg on a friendly CHAOS CULT\noperative (excluding DEVOTEE), you can ignore\nthat inflicted damage. If that friendly operative\nis a MUTANT or TORMENT operative, you cannot\nroll for the Unnatural Regeneration rule for that\nattack dice then decide to use this rule on the\nsame dice – you must use one or the other."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Corsair Voidscarred": [
@@ -3885,7 +3955,8 @@ async function loadData() {
         "title": "CHRONOMETER",
         "texts": [
           "DEATH KORPS\nFACTION EQUIPMENT\nCHRONOMETER\nKrieg combat operations are performed to strict\nschedules. Synchronised chronometers ensure\noperatives adhere to the time frames laid down\nby command.\nOnce per battle STRATEGIC GAMBIT in the first\nor second turning point. Each friendly DEATH\nKORPS  operative wholly within your territory\ncan immediately perform a free Dash action in an\norder of your choice, but each that does so must\nend that move closer to an opponent’s drop zone\nor killzone edge.\nYou cannot use this STRATEGIC GAMBIT and\nthe Regroup strategy ploy during the same\nturning point."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "COMM-BEADS",
@@ -3903,7 +3974,8 @@ async function loadData() {
         "title": "GAS BOMBARDMENT",
         "texts": [
           "DEATH KORPS\nFACTION EQUIPMENT\nGAS BOMBARDMENT\nCalling for artillery support, the Death Korps request\na chemical barrage, knowing full well that even\nenviro-sealed uniforms will not protect them from the\npoisonous fumes.\nOnce per battle STRATEGIC GAMBIT. Place\nyour Gas marker in the killzone; it cannot be\nplaced underneath Vantage terrain. Whenever\nan operative is within 3\" of that marker, subtract\n1 from its APL stat. In the Ready step of the next\nStrategy phase, remove that marker. Note that\nan operative’s APL stat is only changed while it’s\nwithin 3\" of that marker. If it moves more than\n3\" from that marker, its APL stat is no longer\nchanged by this rule."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Deathwatch": [
@@ -3929,7 +4001,8 @@ async function loadData() {
         "title": "AMMUNITION RESERVE",
         "texts": [
           "DEATHWATCH\nFACTION EQUIPMENT\nAMMUNITION RESERVE\nAwarded to kill teams whose marksmanship is as\nefficient as it is lethal, additional caches of individually\ncrafted shells, fuel canisters and ammunition cells serve\nto secure victory during the most dangerous missions.\nOnce per battle, you can use the Special Issue\nAmmunition faction rule for up to two Shoot\nactions during one turning point, but you must\nselect different weapon rules for both uses. This\ntakes precedence over the normal Special Issue\nAmmunition rules."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Elucidian Starstriders": [
@@ -3955,7 +4028,8 @@ async function loadData() {
         "title": "RAPID GUNNERY",
         "texts": [
           "ELUCIDIAN STARSTRIDER\nFACTION EQUIPMENT\nRAPID GUNNERY\nThe New Dawn’s colossal batteries are slow to reload\nand recharge. Only veteran gun crews possess the\nexpertise and coordination to fire a rapid salvo.\nOnce per battle, when selecting a PRIVATEER\nSUPPORT ASSET, you can select one that's\nalready been used during the battle. This\ntakes precedence over the normal PRIVATEER\nSUPPORT ASSET rules."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Exaction Squad": [
@@ -4007,7 +4081,8 @@ async function loadData() {
         "title": "TROPHY",
         "texts": [
           "FARSTALKER KINBAND\nFACTION EQUIPMENT\nTROPHY\nKroot Farstalkers seek to cut down the most powerful\nof foes. They will aggressively pursue any enemy they\njudge worthy and harvest trophies from the corpse.\nOnce per battle, during a friendly FARSTALKER\nKINBAND  operative’s activation (excluding\nHOUND), before or after it performs an action, if\nit’s not within control range of enemy operatives,\nyou can use this rule. If you do, add 1 to that\nfriendly operative’s APL stat until the end of\nits activation."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Fellgor Ravagers": [
@@ -4015,7 +4090,8 @@ async function loadData() {
         "title": "BRASS ADORNMENTS",
         "texts": [
           "FELLGOR RAVAGER\nFACTION EQUIPMENT\nBRASS ADORNMENTS\nBrass-plated hooves, horn caps or welded spikes incite\nwithin the Fellgor Ravagers an even greater lust for\nviolence, and provide them with additional weapons\nwith which to mete it out.\nOnce per battle, you can use the Animalistic Fury\nand Wild Rage firefight ploys for 0CP each."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "GORE MARKS",
@@ -4053,7 +4129,8 @@ async function loadData() {
         "title": "MUTATED SYMPTOMS",
         "texts": [
           "GELLERPOX INFECTED\nFACTION EQUIPMENT\nMUTATED SYMPTOMS\nThe effects of the Gellerpox are many and varied; some\ninfected display multiple mutations, each one more\ngrotesque than the last.\nOnce per battle, when you activate a friendly\nGELLERPOX INFECTED  operative, you can select\none additional TECHNO-CURSE for that operative\nto gain until the end of the turning point (it must\nbe different from your existing TECHNO-CURSE).\nNote that if a rule refers to an enemy operative\nbeing affected by your selected TECHNO-CURSE\nrule (e.g. VULGRAR THRICE-CURSED operative’s\nSpread the Glorious Gifts rule), it’s affected by\nyour additional TECHNO-CURSE rule too."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "PLAGUE BELLOWS",
@@ -4137,7 +4214,8 @@ async function loadData() {
         "title": "WRIT OF CLAIM",
         "texts": [
           "HEARTHKYN SALVAGER\nFACTION EQUIPMENT\nWRIT OF CLAIM\nWhen the Salvagers of a League have staked their claim,\nthey will defend their due with steadfast determination.\nOnce per battle, if friendly HEARTHKYN\nSALVAGER  operatives contest two or more\nobjective markers, after rolling off to decide\ninitiative, you can use this rule. If you do, you can\nre-roll your dice."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Hernkyn Yaegirs": [
@@ -4197,7 +4275,8 @@ async function loadData() {
         "title": "RAD BOMBARDMENT",
         "texts": [
           "HUNTER CLADE\nFACTION EQUIPMENT\nRAD BOMBARDMENT\nWith a short binharic transmission, the Hunter Clade\ncall down a radioactive bombardment. Mortar rounds\nrain down, emitting swathes of irradiating energy that\nflush the enemy from cover or force them to retreat from\ncritical objectives.\nOnce per battle STRATEGIC GAMBIT in any\nturning point after the first. Select one objective\nmarker or your opponent’s drop zone. Roll one\nD6 separately for each enemy operative within\ncontrol range of that selected objective marker or\nwithin that drop zone, and subtract 1 if any part\nof that enemy operative's base is underneath\nVantage terrain: on a 4+, subtract 1 from that\noperative's APL stat until the end of its next\nactivation; on a 6, also inflict D3 damage on it\n(roll separately for each)."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "REDUNDANCY SYSTEMS",
@@ -4215,7 +4294,8 @@ async function loadData() {
         "title": "EXTREMIS MIND-LINK",
         "texts": [
           "HUNTER CLADE\nFACTION EQUIPMENT\nEXTREMIS MIND-LINK\nThis technology allows Hunter Clade leaders to retain\nclose control over their Skitarii and Sicarian soldiers. In\nturn, the soldiery see the mind-link as a blessed thing,\nfor the edicts transmitted to them are surely the will of\nthe Omnissiah.\nOnce per battle, you can use the Control Edict\nfirefight ploy for 0CP, but instead of activating\nthe selected friendly operatives in succession,\nactivate them at the same time. Complete their\nactivations action by action in any order."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Imperial Navy Breachers": [
@@ -4249,7 +4329,8 @@ async function loadData() {
         "title": "INQUISITORIAL ROSETTE",
         "texts": [
           "INQUISITORIAL AGENT\nFACTION EQUIPMENT\nINQUISITORIAL ROSETTE\nA symbol of an Inquisitor’s near-boundless authority,\nthe rosette is feared by all.\nOnce per battle, when a friendly INQUISITORIAL\nAGENT  operative is activated, if you’ve used the\nQuarry strategy ploy during this turning point, you\ncan use this rule. If you do, you can select a new\nenemy operative to be your quarry until the end of\nthe turning point."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "COMBAT DAGGERS",
@@ -4267,7 +4348,8 @@ async function loadData() {
         "title": "SERVO-SKULL",
         "texts": [
           "INQUISITORIAL AGENT\nFACTION EQUIPMENT\nSERVO-SKULL\nServo-skulls are diminutive floating servitors that can be\ncrafted and programmed to assist their operators with a\nwide range of tasks.\nOnce per battle, one friendly INQUISITORIAL\nAGENT  operative can perform a mission action\nfor 1 less AP."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Kasrkin": [
@@ -4307,7 +4389,8 @@ async function loadData() {
         "title": "DYNAMITE",
         "texts": [
           "KOMMANDO\nFACTION EQUIPMENT\nDYNAMITE\nKommandos are known to utilise a variety of improvised\nexplosives, the most common of which are bundles of\nvolatile dynamite.\nOnce per battle, a friendly KOMMANDO\noperative (excluding BOMB SQUIG and GROT) can\nuse the following ranged weapon:\nNAME\nATK HIT DMG\nDynamite\n5\n4+\n4/5\nWR\nRange 4\", Blast 1\", Heavy (Reposition only),\nSaturate"
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "HARPOON",
@@ -4417,7 +4500,8 @@ async function loadData() {
         "title": "GRISLY TROPHY",
         "texts": [
           "NEMESIS CLAW\nFACTION EQUIPMENT\nGRISLY TROPHY\nSevered hands and limbs, eyeballs plucked from the\nskulls of screaming victims – these macabre trophies\nand more cause the Night Lords’ foes to waver.\nOnce per battle, when a friendly NEMESIS CLAW\noperative incapacitates an enemy operative\nwithin 2\" of it, you can use this rule. If you do, that\nfriendly operative gains one of your Grisly Trophy\ntokens (if it doesn’t already have one). Whenever\na friendly NEMESIS CLAW  operative that has\none of your Grisly Trophy tokens is visible to and\nwithin 2\" of an enemy operative, subtract 1 from\nthe Atk stat of that enemy operative’s weapons."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "COMMS JAMMERS",
@@ -4579,7 +4663,8 @@ async function loadData() {
         "title": "HEIGHTENED SENSES",
         "texts": [
           "RAVENER\nFACTION EQUIPMENT\nHEIGHTENED SENSES\nEven burrowing, Raveners can detect enemy\npheromones, esoteric energies and the whirr of servos,\nenabling them to land sudden ambushes.\nOnce per battle, after rolling off to decide\ninitiative, if a friendly RAVENER  operative is\nunderground and an enemy operative is within 5\"\nof your TUNNEL, you can re-roll your dice."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Sanctifiers": [
@@ -4651,13 +4736,15 @@ async function loadData() {
         "title": "DROP AUGURY",
         "texts": [
           "TEMPESTUS AQUILON\nFACTION EQUIPMENT\nDROP AUGURY\nPrior to the commencement of hostilities, this region\nhas been subjected to thorough augur scans by orbiting\nwarships or hovering servo‑skulls, the resultant\nintelligence inloaded to the Tempestor’s slate monitron.\nOnce per battle, when a friendly TEMPESTUS\nAQUILON  operative that’s set up above is\nactivated, before expending or landing that\noperative, you can move one of your Drop\nmarkers again. However, it cannot be moved\ncloser to your opponent’s drop zone."
-        ]
+        ],
+        "onceAGame": true
       },
       {
         "title": "REMOTE OVERSEER",
         "texts": [
           "TEMPESTUS AQUILON\nFACTION EQUIPMENT\nREMOTE OVERSEER\nBe it a high‑flying observer aircraft or a specialist team\nof lexmechanicae employing tactical augur banks,\nmonitoring officers provide wider strategic insight as the\nfirefight rages.\nOnce per battle, after rolling off to decide\ninitiative, you can re‑roll your dice."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Vespid Stingwings": [
@@ -4709,7 +4796,8 @@ async function loadData() {
         "title": "UNDERSTUDY’S MASK",
         "texts": [
           "VOID-DANCER TROUPE\nFACTION EQUIPMENT\nUNDERSTUDY’S MASK\nThis item allows Harlequins to change roles during the\nsaedath. Should one who holds a pivotal role be slain,\nanother will swiftly take their place.\nOnce per battle, when you activate a friendly\nVOID-DANCER TROUPE  operative, if the friendly\noperative that has the PIVOTAL ROLE has been\nincapacitated, you can use this rule. If you do,\nthat activated operative has the PIVOTAL ROLE\nfor the battle."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Warpcoven": [
@@ -4735,7 +4823,8 @@ async function loadData() {
         "title": "SORCEROUS SCROLLS",
         "texts": [
           "WARPCOVEN\nFACTION EQUIPMENT\nSORCEROUS SCROLLS\nRare and dangerous scrolls from the vaults of Prospero\nallow the Sorcerers to beseech Tzeentch for even\ngreater power.\nOnce per battle, when a friendly WARPCOVEN\nSORCERER operative is activated or counteracts,\nyou can select a different BOON OF TZEENTCH for\nit to have until the end of the battle (it loses any it\npreviously had). It cannot be the same BOON OF\nTZEENTCH any other friendly operative has. Note\nthat if you use this rule when a friendly operative\ncounteracts and you select Echoes from the\nWarp, it can be used immediately to change the\noperative’s order and perform a free action during\nthat counteraction."
-        ]
+        ],
+        "onceAGame": true
       }
     ],
     "Wolf Scouts": [

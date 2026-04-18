@@ -60,8 +60,10 @@ def build():
 
             item = {"title": title, "texts": texts}
 
-            # Flag equipment that can only be used once per game
-            if key == "equipment" and any("Once a game" in t for t in texts):
+            # Flag equipment that can only be used once per game/battle
+            if key == "equipment" and any(
+                "Once a game" in t or "Once per battle" in t for t in texts
+            ):
                 item["onceAGame"] = True
 
             if team not in output[key]:
